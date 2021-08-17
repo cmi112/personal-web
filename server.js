@@ -1,10 +1,12 @@
 require('dotenv').config()
 const express = require("express")
 const mongoose = require("mongoose")
+const path=require("path")
 const contactSchema = require("./models/contactSchema")
 const bodyParser = require('body-parser')
 const cors = require("cors")
-const port=8000;
+const router= require("./routes/index.js")
+
 
 
 
@@ -18,38 +20,8 @@ app.use(bodyParser.json())
 
 
 app.use(express.json());
-const path = require("path");
 app.use(cors());
 
-app.get("/forms",async(req,res)=>{
-  // res.json({success:true,data:GrocerySeed})
-  // res.send("alxmdulilaah")
-  try{
-    const forms = await contactSchema.find()
-    res.json(forms)
-  }catch(err){
-    res.json({message:err})
-  }
-})
-
-// // Post Form
-app.post("/forms",async(req,res)=>{
-  console.log(req.body);
-  const form =await new contactSchema({
-    firstname:req.body.firstname,
-    lastname:req.body.lastname,
-    email:req.body.email,
-    message:req.body.message
-  })
-  form.save()
-  res.status(201).json({
-    status:"success",
-    data:{
-      form
-    }
-  })
-
-})
 mongoose.connect(process.env.DB_URL,{ useNewUrlParser: true ,useUnifiedTopology: true } ,()=>{
   console.log("Connected to DB");
 })
@@ -74,8 +46,16 @@ app.use(function (req, res, next) {
   next();
 });
 
+app.use("/forms", router);
 
+if(process.env.NODE_ENV === "production"){
+  app.use(express.static("frontend/build"))
+  app.get("*",(req,res)=>{
+    res.sendFile(path.resolve(__dirname,"frontend","build","index.html"))
 
+  })
+}
 
+const port =process.env.PORT || 8000;
 
 app.listen(port,()=>console.log("Server Started on Port " + port))
