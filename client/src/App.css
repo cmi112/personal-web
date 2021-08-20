@@ -5,6 +5,9 @@ body {
   text-align: center;
   font-family: "Merriweather", serif;
 }
+html{
+  scroll-behavior: smooth;
+}
 
 /* Headers style  h1,h2, h3 */
 h1 {
